@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Upload</title>
+</head>
+<body>
+    <h1>Upload a Prescription Image</h1>
+
+    <!-- Form to upload file -->
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <hr>
+
+    <h2>Suggested Medicines</h2>
+    <div id="results"></div>
+
+    <script>
+        // Handle the form submission asynchronously
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            
+            if (data.medicines) {
+                let resultsHTML = '<ul>';
+                data.medicines.forEach(medicine => {
+                    resultsHTML += `
+                        <li>
+                            <strong>Medicine Name:</strong> ${medicine.medicine_name} <br>
+                            <strong>Price:</strong> ₹${medicine['price(₹)']} <br>
+                            <strong>Manufacturer:</strong> ${medicine.manufacturer_name} <br>
+                            <strong>Type:</strong> ${medicine.type} <br>
+                        </li>
+                    `;
+                });
+                resultsHTML += '</ul>';
+                document.getElementById('results').innerHTML = resultsHTML;
+            } else {
+                document.getElementById('results').innerHTML = 'No medicines found.';
+            }
+        });
+    </script>
+</body>
+</html>
